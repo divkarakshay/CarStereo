@@ -28,6 +28,8 @@ class SerialDumpService : Service() {
         const val EXTRA_OUTPUT_FILE = "extra_output_file"
         const val EXTRA_PC_HOST = "extra_pc_host"
         const val EXTRA_PC_PORT = "extra_pc_port"
+        const val ACTION_EXECUTE_COMMAND = "com.cardumper.ACTION_EXECUTE_COMMAND"
+        const val EXTRA_COMMAND = "extra_command"
     }
 
     private val isRunning = AtomicBoolean(false)
@@ -51,6 +53,10 @@ class SerialDumpService : Service() {
             ACTION_STOP -> {
                 stopDumping()
                 stopSelf()
+            }
+            ACTION_EXECUTE_COMMAND -> {
+                val cmd = intent?.getStringExtra(EXTRA_COMMAND) ?: return START_STICKY
+                executeShellCommand(cmd)
             }
         }
         return START_STICKY
@@ -175,6 +181,23 @@ class SerialDumpService : Service() {
         }
         inputStream = null
         fileOutputStream = null
+    }
+
+    private fun executeShellCommand(cmd: String) {
+        try {
+            val runtime = Runtime.getRuntime()
+            val process = runtime.exec(cmd)
+            val stdout = process.inputStream.bufferedReader().readText()
+            val stderr = process.errorStream.bufferedReader().readText()
+            val code = process.waitFor()
+            Log.i(TAG, "CMD[$cmd] exit=$code out=$stdout err=$stderr")
+            val result = Intent("com.cardumper.CMD_RESULT")
+            result.putExtra("command", cmd)
+            result.putExtra("output", stdout + stderr)
+            LocalBroadcastManager.getInstance(this).sendBroadcast(result)
+        } catch (e: Exception) {
+            Log.e(TAG, "Command failed: ${e.message}")
+        }
     }
 
     private fun createNotificationChannel() {

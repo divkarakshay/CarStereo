@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
 import android.widget.Button
+import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -18,6 +19,8 @@ class SerialDumpActivity : AppCompatActivity() {
     private lateinit var btnStart: Button
     private lateinit var btnStop: Button
     private lateinit var btnShare: Button
+    private lateinit var etCommand: EditText
+    private lateinit var btnRunCommand: Button
     private lateinit var tvStatus: TextView
     private lateinit var tvBytes: TextView
     private lateinit var tvData: TextView
@@ -45,6 +48,8 @@ class SerialDumpActivity : AppCompatActivity() {
         btnStart = findViewById(R.id.btnStart)
         btnStop = findViewById(R.id.btnStop)
         btnShare = findViewById(R.id.btnShare)
+        etCommand = findViewById(R.id.etCommand)
+        btnRunCommand = findViewById(R.id.btnRunCommand)
         tvStatus = findViewById(R.id.tvStatus)
         tvBytes = findViewById(R.id.tvBytes)
         tvData = findViewById(R.id.tvData)
@@ -63,6 +68,20 @@ class SerialDumpActivity : AppCompatActivity() {
 
         btnShare.setOnClickListener {
             shareFile()
+        }
+
+        btnRunCommand.setOnClickListener {
+            val cmd = etCommand.text.toString().trim()
+            if (cmd.isEmpty()) {
+                updateStatus("Empty command")
+                return@setOnClickListener
+            }
+            val intent = Intent(this, SerialDumpService::class.java).apply {
+                action = SerialDumpService.ACTION_EXECUTE_COMMAND
+                putExtra(SerialDumpService.EXTRA_COMMAND, cmd)
+            }
+            startService(intent)
+            updateStatus("Running CMD")
         }
 
         updateStatus("Ready")
