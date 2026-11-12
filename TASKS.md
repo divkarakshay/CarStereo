@@ -24,16 +24,20 @@ Use this file to track work across multiple AI sessions. Update it after each se
 | Task | Status | Notes |
 |------|--------|-------|
 | Implement CanService skeleton | ✅ Completed | Foreground service, serial port I/O |
-| Implement CAN frame parser/builder | ⬜ | ID + data byte handling |
-| Set up LiveData/Broadcast for UI updates | ⬜ | |
-| Add error handling & reconnection | ⬜ | |
+| Implement CAN frame parser/builder | ✅ Completed | ID + data byte handling |
+| Set up LiveData/Broadcast for UI updates | ✅ Completed | |
+| Add error handling & reconnection | ✅ Completed | |
+| Create AndroidManifest.xml | ✅ Completed | Permissions, components |
+| Create Gradle build files | ✅ Completed | build.gradle, settings.gradle |
+| Create SerialDumpService.kt | ✅ Completed | Foreground service reading serial port |
+| Create SerialDumpActivity.kt | ✅ Completed | UI
 
 ## Phase 3: Launcher UI
 
 | Task | Status | Notes |
 |------|--------|-------|
 | Create LauncherActivity | ✅ Completed | Home screen, replace stock launcher |
-| Build tab layout (Home, Apps, Maps, Settings) | ⬜ | ViewPager2 |
+| Build tab layout (Home, Apps, Maps, Settings) | ✅ Completed | ViewPager2 |
 | Implement app list fragment | ⬜ | Query installed apps |
 | Create AC control fragment | ⬜ | Temperature, mode, fan speed |
 
@@ -70,6 +74,16 @@ Use this file to track work across multiple AI sessions. Update it after each se
 ## Session Log
 
 ### Session 1 (Initial)
+- **AI**: TierMux
+- **Work done**: Architecture design, component breakdown, CAN bus approach, UI plan
+- **Files created**: `CONVERSATION_SUMMARY.md`, `README.md`, `HANDOFF_TEMPLATE.md`, `TASKS.md`
+- **Next step**: Reverse-engineer CAN IDs
+
+### Session 2 (Current)
+- **AI**: TierMux
+- **Work done**: Created SerialDump Android project, added service, activity, manifest, build files, updated tasks, added change log
+- **Files updated**: `README.md`, `TASKS.md`, `CHANGELOG.md`, `SerialDump/**/*.kt`, `SerialDump/**/*.xml`, `SerialDump/**/*.gradle`
+
 - **AI**: TierMux
 - **Work done**: Architecture design, component breakdown, CAN bus approach, UI plan
 - **Files created**: `CONVERSATION_SUMMARY.md`, `README.md`, `HANDOFF_TEMPLATE.md`, `TASKS.md`
