@@ -12,6 +12,8 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
+import java.io.OutputStream
+import java.net.Socket
 import java.util.concurrent.atomic.AtomicBoolean
 
 class SerialDumpService : Service() {
@@ -24,12 +26,16 @@ class SerialDumpService : Service() {
         const val ACTION_STOP = "com.cardumper.ACTION_STOP"
         const val EXTRA_SERIAL_PORT = "extra_serial_port"
         const val EXTRA_OUTPUT_FILE = "extra_output_file"
+        const val EXTRA_PC_HOST = "extra_pc_host"
+        const val EXTRA_PC_PORT = "extra_pc_port"
     }
 
     private val isRunning = AtomicBoolean(false)
     private var dumpThread: Thread? = null
     private var inputStream: InputStream? = null
     private var fileOutputStream: FileOutputStream? = null
+    private var pcSocket: Socket? = null
+    private var pcOutputStream: OutputStream? = null
     private var totalBytesWritten = 0L
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -38,7 +44,9 @@ class SerialDumpService : Service() {
                 val port = intent?.extras?.getString(EXTRA_SERIAL_PORT, "/dev/ttyS0") ?: "/dev/ttyS0"
                 val outputFile = intent?.extras?.getString(EXTRA_OUTPUT_FILE, "/sdcard/SerialDump/serial_dump.txt")
                     ?: "/sdcard/SerialDump/serial_dump.txt"
-                startDumping(port, outputFile)
+                val pcHost = intent?.getStringExtra(EXTRA_PC_HOST)
+                val pcPort = intent?.getStringExtra(EXTRA_PC_PORT)?.toInt()
+                startDumping(port, outputFile, pcHost, pcPort)
             }
             ACTION_STOP -> {
                 stopDumping()
@@ -53,7 +61,7 @@ class SerialDumpService : Service() {
         createNotificationChannel()
     }
 
-    private fun startDumping(port: String, outputFile: String) {
+    private fun startDumping(port: String, outputFile: String, pcHost: String?, pcPort: Int?) {
         if (isRunning.get()) {
             Log.w(TAG, "Service already running")
             return
@@ -61,6 +69,16 @@ class SerialDumpService : Service() {
 
         isRunning.set(true)
         totalBytesWritten = 0
+
+        if (pcHost != null && pcPort != null) {
+            try {
+                pcSocket = Socket(pcHost, pcPort)
+                pcOutputStream = pcSocket?.getOutputStream()
+                Log.i(TAG, "Streaming data to PC at ${pcHost}:${pcPort}")
+            } catch (e: IOException) {
+                Log.e(TAG, "Failed to connect to PC ${pcHost}:${pcPort}: ${e.message}")
+            }
+        }
 
         dumpThread = Thread {
             try {
@@ -102,6 +120,8 @@ class SerialDumpService : Service() {
                     if (bytesRead > 0) {
                         fileOutputStream!!.write(buffer, 0, bytesRead)
                         totalBytesWritten += bytesRead
+                        pcOutputStream?.write(buffer, 0, bytesRead)
+                        pcOutputStream?.flush()
                         if (totalBytesWritten % 1024 == 0L) {
                             Log.d(TAG, "Bytes written: $totalBytesWritten")
                         }
@@ -121,6 +141,7 @@ class SerialDumpService : Service() {
             } catch (e: Exception) {
                 Log.e(TAG, "Exception: ${e.message}", e)
             } finally {
+                pcSocket?.close()
                 closeResources()
                 Log.i(TAG, "Dump stopped. Total bytes: $totalBytesWritten")
                 isRunning.set(false)

@@ -73,6 +73,8 @@ class SerialDumpActivity : AppCompatActivity() {
             action = SerialDumpService.ACTION_START
             putExtra(SerialDumpService.EXTRA_SERIAL_PORT, "/dev/ttyS0")
             putExtra(SerialDumpService.EXTRA_OUTPUT_FILE, "/sdcard/SerialDump/serial_dump.txt")
+            putExtra(SerialDumpService.EXTRA_PC_HOST, "10.74.10.163")
+            putExtra(SerialDumpService.EXTRA_PC_PORT, 8080)
         }
         startService(intent)
         updateStatus("Dumping...")
