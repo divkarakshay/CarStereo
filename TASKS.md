@@ -14,7 +14,7 @@ Use this file to track work across multiple AI sessions. Update it after each se
 
 | Task | Status | Notes |
 |------|--------|-------|
-| Capture CAN traffic from Nippon device | ⬜ | Need USB-to-CAN adapter or use built-in serial |
+| Capture CAN traffic from Nippon device | ✅ Completed | Need USB-to-CAN adapter or use built-in serial |
 | Identify engine state CAN ID | ⬜ | Correlate with known start/stop events |
 | Identify AC control CAN IDs | ⬜ | Temperature, mode, fan speed |
 | Document CAN protocol mapping | ⬜ | Create a reference table |
@@ -23,7 +23,7 @@ Use this file to track work across multiple AI sessions. Update it after each se
 
 | Task | Status | Notes |
 |------|--------|-------|
-| Implement CanService skeleton | ⬜ | Foreground service, serial port I/O |
+| Implement CanService skeleton | ✅ Completed | Foreground service, serial port I/O |
 | Implement CAN frame parser/builder | ⬜ | ID + data byte handling |
 | Set up LiveData/Broadcast for UI updates | ⬜ | |
 | Add error handling & reconnection | ⬜ | |
@@ -32,7 +32,7 @@ Use this file to track work across multiple AI sessions. Update it after each se
 
 | Task | Status | Notes |
 |------|--------|-------|
-| Create LauncherActivity | ⬜ | Home screen, replace stock launcher |
+| Create LauncherActivity | ✅ Completed | Home screen, replace stock launcher |
 | Build tab layout (Home, Apps, Maps, Settings) | ⬜ | ViewPager2 |
 | Implement app list fragment | ⬜ | Query installed apps |
 | Create AC control fragment | ⬜ | Temperature, mode, fan speed |
