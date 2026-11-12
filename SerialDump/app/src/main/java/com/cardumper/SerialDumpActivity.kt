@@ -21,12 +21,14 @@ class SerialDumpActivity : AppCompatActivity() {
     private lateinit var btnShare: Button
     private lateinit var etCommand: EditText
     private lateinit var btnRunCommand: Button
+    private lateinit var btnListenCommand: Button
     private lateinit var tvStatus: TextView
     private lateinit var tvBytes: TextView
     private lateinit var tvData: TextView
 
     private var totalBytes = 0L
     private var lastLine = ""
+    private var lastCommandResult = ""
 
     private val dataReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -41,6 +43,15 @@ class SerialDumpActivity : AppCompatActivity() {
         }
     }
 
+    private val cmdReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            val cmd = intent?.getStringExtra("command") ?: ""
+            val output = intent?.getStringExtra("output") ?: ""
+            lastCommandResult = output
+            tvData.text = "CMD[$cmd]: $output"
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_serial_dump)
@@ -50,13 +61,17 @@ class SerialDumpActivity : AppCompatActivity() {
         btnShare = findViewById(R.id.btnShare)
         etCommand = findViewById(R.id.etCommand)
         btnRunCommand = findViewById(R.id.btnRunCommand)
+        btnListenCommand = findViewById(R.id.btnListenCommand)
         tvStatus = findViewById(R.id.tvStatus)
         tvBytes = findViewById(R.id.tvBytes)
         tvData = findViewById(R.id.tvData)
 
         // Register receiver
-        val filter = IntentFilter("com.cardumper.SERIAL_DATA")
-        LocalBroadcastManager.getInstance(this).registerReceiver(dataReceiver, filter)
+        val dataFilter = IntentFilter("com.cardumper.SERIAL_DATA")
+        LocalBroadcastManager.getInstance(this).registerReceiver(dataReceiver, dataFilter)
+
+        val cmdFilter = IntentFilter("com.cardumper.CMD_RESULT")
+        LocalBroadcastManager.getInstance(this).registerReceiver(cmdReceiver, cmdFilter)
 
         btnStart.setOnClickListener {
             startDump()
@@ -82,6 +97,16 @@ class SerialDumpActivity : AppCompatActivity() {
             }
             startService(intent)
             updateStatus("Running CMD")
+        }
+
+        btnListenCommand.setOnClickListener {
+            val intent = Intent(this, SerialDumpService::class.java).apply {
+                action = SerialDumpService.ACTION_LISTEN
+                putExtra(SerialDumpService.EXTRA_LISTEN_HOST, "0.0.0.0")
+                putExtra(SerialDumpService.EXTRA_LISTEN_PORT, 8080)
+            }
+            startService(intent)
+            updateStatus("Listening for PC")
         }
 
         updateStatus("Ready")
@@ -136,6 +161,7 @@ class SerialDumpActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        unregisterReceiver(dataReceiver)
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(dataReceiver)
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(cmdReceiver)
     }
 }

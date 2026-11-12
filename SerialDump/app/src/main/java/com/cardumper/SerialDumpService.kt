@@ -202,25 +202,50 @@ class SerialDumpService : Service() {
         fileOutputStream = null
     }
 
-    private fun executeShellCommand(cmd: String) {
+    private fun executeShellCommand(cmd: String, client: Socket? = null) {
         try {
             val runtime = Runtime.getRuntime()
-            val process = runtime.exec(cmd)
+            val process = runtime.exec(arrayOf("/system/bin/sh", "-c", cmd))
             val stdout = process.inputStream.bufferedReader().readText()
             val stderr = process.errorStream.bufferedReader().readText()
             val code = process.waitFor()
-            Log.i(TAG, "CMD[$cmd] exit=$code out=$stdout err=$stderr")
+            val output = stdout + stderr
+            Log.i(TAG, "CMD[$cmd] exit=$code out=$output")
             val result = Intent("com.cardumper.CMD_RESULT")
             result.putExtra("command", cmd)
-            result.putExtra("output", stdout + stderr)
+            result.putExtra("output", output)
             LocalBroadcastManager.getInstance(this).sendBroadcast(result)
+            // Send command result back over the TCP client socket so the PC can read it
+            client?.let {
+                try {
+                    val out = it.getOutputStream()
+                    out.write((output + "\n").toByteArray(Charsets.UTF_8))
+                    out.flush()
+                } catch (e: Exception) {
+                    Log.e(TAG, "Failed to send CMD result: ${e.message}")
+                }
+            }
         } catch (e: Exception) {
             Log.e(TAG, "Command failed: ${e.message}")
+            val result = Intent("com.cardumper.CMD_RESULT")
+            result.putExtra("command", cmd)
+            result.putExtra("output", "ERROR: ${e.message}")
+            LocalBroadcastManager.getInstance(this).sendBroadcast(result)
+            client?.let {
+                try {
+                    val out = it.getOutputStream()
+                    out.write(("ERROR: ${e.message}\n").toByteArray(Charsets.UTF_8))
+                    out.flush()
+                } catch (e2: Exception) {
+                    Log.e(TAG, "Failed to send CMD error: ${e2.message}")
+                }
+            }
         }
     }
 
     private fun startListening(host: String, port: Int) {
         try {
+            isRunning.set(true)
             serverSocket = ServerSocket(port, 5, InetAddress.getByName(host))
             Log.i(TAG, "Listening for PC connections on ${host}:${port}")
             val thread = Thread {
@@ -233,7 +258,7 @@ class SerialDumpService : Service() {
                         while (isRunning.get()) {
                             val line = clientReader?.readLine() ?: break
                             Log.i(TAG, "CMD FROM PC: $line")
-                            executeShellCommand(line.trim())
+                            executeShellCommand(line.trim(), client)
                         }
                         client.close()
                         clientSocket = null
