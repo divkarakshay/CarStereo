@@ -12,7 +12,7 @@ class SerialDumpReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         val bytes = intent.getLongExtra("bytes", 0)
-        val data = intent.getStringExtra("data", "")
+        val data = intent.getStringExtra("data") ?: ""
         Log.d(TAG, "Received: bytes=$bytes, data=$data")
     }
 }

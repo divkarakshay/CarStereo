@@ -10,7 +10,6 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import java.io.File
 
 class SerialDumpActivity : AppCompatActivity() {
@@ -27,17 +26,8 @@ class SerialDumpActivity : AppCompatActivity() {
 
     private val dataReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-                val bytes = intent.getLongExtra("bytes", 0L)
-                val data = intent.getStringExtra("data") ?: ""
-                totalBytes = bytes
-                tvBytes.text = "Bytes: $bytes"
-                if (data.isNotEmpty()) {
-                    lastLine = data
-                    tvData.text = "Last: $data"
-                }
-            }
-            val bytes = intent!!.getLongExtra("bytes", 0)
-            val data = intent!!.extras!!.getString("data", "")
+            val bytes = intent?.getLongExtra("bytes", 0L) ?: 0L
+            val data = intent?.getStringExtra("data") ?: ""
             totalBytes = bytes
             tvBytes.text = "Bytes: $bytes"
             if (data.isNotEmpty()) {
@@ -110,12 +100,12 @@ class SerialDumpActivity : AppCompatActivity() {
             file
         )
 
-        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+        val shareIntent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
             type = "text/plain"
-            putExtra(Intent.EXTRA_TEXT, uri.toString())
-            putExtra(Intent.EXTRA_SUBJECT, "Serial Dump Data")
+            putExtra(android.content.Intent.EXTRA_TEXT, uri.toString())
+            putExtra(android.content.Intent.EXTRA_SUBJECT, "Serial Dump Data")
         }
-        startActivity(Intent.createChooser(shareIntent, "Share Dump"))
+        startActivity(android.content.Intent.createChooser(shareIntent, "Share Dump"))
     }
 
     private fun updateStatus(status: String) {

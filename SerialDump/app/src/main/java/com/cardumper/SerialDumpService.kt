@@ -34,8 +34,9 @@ class SerialDumpService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
             ACTION_START -> {
-                val port = intent!!.extras!!.getString(EXTRA_SERIAL_PORT, "/dev/ttyS0")
-                val outputFile = intent!!.extras!!.getString(EXTRA_OUTPUT_FILE, "/sdcard/SerialDump/serial_dump.txt")
+                val port = intent?.extras?.getString(EXTRA_SERIAL_PORT, "/dev/ttyS0") ?: "/dev/ttyS0"
+                val outputFile = intent?.extras?.getString(EXTRA_OUTPUT_FILE, "/sdcard/SerialDump/serial_dump.txt")
+                    ?: "/sdcard/SerialDump/serial_dump.txt"
                 startDumping(port, outputFile)
             }
             ACTION_STOP -> {
@@ -96,24 +97,6 @@ class SerialDumpService : Service() {
 
                 val buffer = ByteArray(4096)
                 while (isRunning.get()) {
-                        val bytesRead = inputStream!!.read(buffer)
-                        if (bytesRead > 0) {
-                            fileOutputStream!!.write(buffer, 0, bytesRead)
-                            totalBytesWritten += bytesRead
-                            if (totalBytesWritten % 1024 == 0L) {
-                                Log.d(TAG, "Bytes written: $totalBytesWritten")
-                            }
-                            // Broadcast data
-                            val dataString = String(buffer, 0, bytesRead)
-                            val broadcast = Intent("com.cardumper.SERIAL_DATA")
-                            broadcast.putExtra("bytes", totalBytesWritten)
-                            broadcast.putExtra("data", dataString)
-                            sendBroadcast(broadcast)
-                        } else if (bytesRead == -1) {
-                            Log.w(TAG, "End of stream reached")
-                            break
-                        }
-                    }
                     val bytesRead = inputStream!!.read(buffer)
                     if (bytesRead > 0) {
                         fileOutputStream!!.write(buffer, 0, bytesRead)
@@ -121,6 +104,12 @@ class SerialDumpService : Service() {
                         if (totalBytesWritten % 1024 == 0L) {
                             Log.d(TAG, "Bytes written: $totalBytesWritten")
                         }
+                        // Broadcast data
+                        val dataString = String(buffer, 0, bytesRead)
+                        val broadcast = Intent("com.cardumper.SERIAL_DATA")
+                        broadcast.putExtra("bytes", totalBytesWritten)
+                        broadcast.putExtra("data", dataString)
+                        sendBroadcast(broadcast)
                     } else if (bytesRead == -1) {
                         Log.w(TAG, "End of stream reached")
                         break
@@ -174,9 +163,9 @@ class SerialDumpService : Service() {
         ).apply {
             description = "Serial data dump service"
         }
-        val notificationManager = NotificationManager(this)
+        val notificationManager = getSystemService(NotificationManager::class.java) as NotificationManager
         notificationManager.createNotificationChannel(channel)
     }
 
-    override fun onBind(intent: Intent?): IBinder? = null: IBinder? = null
+    override fun onBind(intent: Intent?): IBinder? = null
 }

@@ -70,7 +70,7 @@ class CanService : Service() {
     private val framesLiveData = MutableLiveData<List<CanFrame>>(emptyList())
 
     /** Streams the latest CAN frames observed from the MCU. */
-    fun frames: LiveData<List<CanFrame>> get() = framesLiveData
+    val frames: LiveData<List<CanFrame>> get() = framesLiveData
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
@@ -206,7 +206,7 @@ class CanService : Service() {
         ).apply {
             description = "Listening for CAN data from the car stereo MCU"
         }
-        val notificationManager = NotificationManager(this)
+        val notificationManager = getSystemService(NotificationManager::class.java) as NotificationManager
         notificationManager.createNotificationChannel(channel)
     }
 
