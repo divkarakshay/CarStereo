@@ -7,6 +7,7 @@ import android.content.Intent
 import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -109,7 +110,7 @@ class SerialDumpService : Service() {
                         val broadcast = Intent("com.cardumper.SERIAL_DATA")
                         broadcast.putExtra("bytes", totalBytesWritten)
                         broadcast.putExtra("data", dataString)
-                        sendBroadcast(broadcast)
+                        LocalBroadcastManager.getInstance(this).sendBroadcast(broadcast)
                     } else if (bytesRead == -1) {
                         Log.w(TAG, "End of stream reached")
                         break

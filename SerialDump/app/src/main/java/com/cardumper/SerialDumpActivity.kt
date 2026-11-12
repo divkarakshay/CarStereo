@@ -10,6 +10,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import java.io.File
 
 class SerialDumpActivity : AppCompatActivity() {
@@ -50,7 +51,7 @@ class SerialDumpActivity : AppCompatActivity() {
 
         // Register receiver
         val filter = IntentFilter("com.cardumper.SERIAL_DATA")
-        registerReceiver(dataReceiver, filter)
+        LocalBroadcastManager.getInstance(this).registerReceiver(dataReceiver, filter)
 
         btnStart.setOnClickListener {
             startDump()
