@@ -1,0 +1,22 @@
+# Build artifacts
+build/
+.gradle/
+.cxx/
+cmake-build-*/
+
+# Android
+local.properties/
+*.apk
+*.ap_
+*.aab
+
+# OS
+.DS_Store
+
+# IntelliJ/Android Studio
+*.iml
+.idea/
+
+# Kotlin
+.kotlin/
+kotlin/
