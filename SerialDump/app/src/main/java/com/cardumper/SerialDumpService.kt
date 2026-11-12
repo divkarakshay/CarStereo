@@ -8,11 +8,16 @@ import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import java.io.BufferedReader
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
+import java.io.InputStreamReader
 import java.io.OutputStream
+import java.net.InetAddress
+import java.net.InetSocketAddress
+import java.net.ServerSocket
 import java.net.Socket
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -30,6 +35,9 @@ class SerialDumpService : Service() {
         const val EXTRA_PC_PORT = "extra_pc_port"
         const val ACTION_EXECUTE_COMMAND = "com.cardumper.ACTION_EXECUTE_COMMAND"
         const val EXTRA_COMMAND = "extra_command"
+        const val ACTION_LISTEN = "com.cardumper.ACTION_LISTEN"
+        const val EXTRA_LISTEN_HOST = "listen_host"
+        const val EXTRA_LISTEN_PORT = "listen_port"
     }
 
     private val isRunning = AtomicBoolean(false)
@@ -38,6 +46,9 @@ class SerialDumpService : Service() {
     private var fileOutputStream: FileOutputStream? = null
     private var pcSocket: Socket? = null
     private var pcOutputStream: OutputStream? = null
+    private var serverSocket: ServerSocket? = null
+    private var clientSocket: Socket? = null
+    private var clientReader: BufferedReader? = null
     private var totalBytesWritten = 0L
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -53,6 +64,12 @@ class SerialDumpService : Service() {
             ACTION_STOP -> {
                 stopDumping()
                 stopSelf()
+            }
+            ACTION_LISTEN -> {
+                startListening(
+                    intent?.getStringExtra(EXTRA_LISTEN_HOST) ?: "0.0.0.0",
+                    intent?.getStringExtra(EXTRA_LISTEN_PORT)?.toInt() ?: 8080
+                )
             }
             ACTION_EXECUTE_COMMAND -> {
                 val cmd = intent?.getStringExtra(EXTRA_COMMAND) ?: return START_STICKY
@@ -169,6 +186,8 @@ class SerialDumpService : Service() {
     private fun stopDumping() {
         isRunning.set(false)
         dumpThread?.interrupt()
+        serverSocket?.close()
+        clientSocket?.close()
         closeResources()
     }
 
@@ -197,6 +216,36 @@ class SerialDumpService : Service() {
             LocalBroadcastManager.getInstance(this).sendBroadcast(result)
         } catch (e: Exception) {
             Log.e(TAG, "Command failed: ${e.message}")
+        }
+    }
+
+    private fun startListening(host: String, port: Int) {
+        try {
+            serverSocket = ServerSocket(port, 5, InetAddress.getByName(host))
+            Log.i(TAG, "Listening for PC connections on ${host}:${port}")
+            val thread = Thread {
+                try {
+                    while (isRunning.get()) {
+                        val client = serverSocket?.accept() ?: break
+                        clientSocket = client
+                        clientReader = BufferedReader(InputStreamReader(client.getInputStream(), Charsets.UTF_8))
+                        Log.i(TAG, "PC connected: ${client.remoteSocketAddress}")
+                        while (isRunning.get()) {
+                            val line = clientReader?.readLine() ?: break
+                            Log.i(TAG, "CMD FROM PC: $line")
+                            executeShellCommand(line.trim())
+                        }
+                        client.close()
+                        clientSocket = null
+                        clientReader = null
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "Listen loop ended: ${e.message}")
+                }
+            }
+            thread.start()
+        } catch (e: IOException) {
+            Log.e(TAG, "Failed to start listening: ${e.message}")
         }
     }
 
