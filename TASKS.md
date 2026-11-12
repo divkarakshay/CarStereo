@@ -90,4 +90,14 @@ Use this file to track work across multiple AI sessions. Update it after each se
 - **Next step**: Reverse-engineer CAN IDs
 
 ---
+
+### Session 3 (Current)
+- **AI**: Flint
+- **Work done**: Created `CanService.kt` foreground service (serial read loop, `CanFrame` data class, `LiveData<List<CanFrame>>` exposure, raw dump write, broadcast); registered service in AndroidManifest; updated plan/TASKS/CHANGELOG.
+- **Files created**: `SerialDump/app/src/main/java/com/cardumper/CanService.kt`
+- **Files updated**: `SerialDump/app/src/main/AndroidManifest.xml`, `.tiermux/plans/2026-11-10-1651-reverse-engineer-can-bus-and-build-servi.md`, `TASKS.md`, `CHANGELOG.md`
+- **Next step**: Identify real CAN frame IDs from live hardware capture; replace placeholder frame parsing in `CanService`.
+
+---
+
 *Update this file after each AI session*

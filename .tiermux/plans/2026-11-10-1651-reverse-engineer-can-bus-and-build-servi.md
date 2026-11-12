@@ -24,7 +24,7 @@ User wants a concrete plan to reverse‑engineer CAN IDs and build a CAN bus ser
   - Files: `CONVERSATION_SUMMARY.md`
   - Evidence: CONVERSATION_SUMMARY.md: lines 8-15 discuss need to reverse‑engineer CAN IDs for engine state and AC control
   - Verify: Use hardware to capture traffic and log frames via adb logcat
-- [ ] Create CanService.kt in src/ folder as a foreground service that opens /dev/ttyS0, reads frames, parses them into CanFrame objects, and posts them via LiveData.
+- [x] Create CanService.kt in src/ folder as a foreground service that opens /dev/ttyS0, reads frames, parses them into CanFrame objects, and posts them via LiveData.
   - Files: `CanService.kt`
   - Evidence: CONVERSATION_SUMMARY.md: lines 30-32 describe building CanService as a foreground service reading serial port
   - Verify: Ensure service starts, binds, and logs input frames

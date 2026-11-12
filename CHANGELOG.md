@@ -17,3 +17,12 @@
   - Create Gradle build files
 
 These changes now provide a working prototype that can connect to the stereo’s serial port, dump the MCU data stream to a file, and display it in the launcher UI.
+
+**2026‑11‑12**
+- Created `CanService.kt`: foreground service that opens the serial port (`/dev/ttyS0` + fallbacks), reads the raw data stream, writes it to a dump file, and posts parsed CAN frames via `LiveData<List<CanFrame>>` (with broadcast to UI).
+- Added `CanFrame` data class (`id` + `data` bytes).
+- Registered `CanService` in `AndroidManifest.xml` (`.CanService`, `foregroundServiceType="dataSync"`).
+- Marked plan step 2 ("Create CanService.kt … posts them via LiveData") as completed in the TierMux plan.
+- Added Session 3 entry to `TASKS.md` and this change log entry.
+
+> **Note**: Frame parsing is currently a placeholder pending live CAN traffic capture and protocol reverse-engineering (Phase 1 of `TASKS.md`). Replace placeholder logic once real CAN frame IDs are identified.
