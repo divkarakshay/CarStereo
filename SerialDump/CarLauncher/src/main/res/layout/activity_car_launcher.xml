@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:background="#121212">
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Car Launcher"
+            android:textColor="#FFFFFF"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="16dp" />
+        <TextView
+            android:id="@+id/tvStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Status: Ready"
+            android:textColor="#4CAF50"
+            android:textSize="16sp"
+            android:layout_marginBottom="8dp" />
+        <TextView
+            android:id="@+id/tvBytes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Bytes: 0"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
+            android:layout_marginBottom="8dp" />
+        <TextView
+            android:id="@+id/tvData"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Waiting for data..."
+            android:textColor="#BBDEFB"
+            android:textSize="12sp"
+            android:fontFamily="monospace"
+            android:background="#1E1E1E"
+            android:padding="8dp"
+            android:layout_marginBottom="16dp" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="8dp">
+            <Button
+                android:id="@+id/btnStart"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="START"
+                android:textColor="#FFFFFF"
+                android:background="@drawable/button_green" />
+            <Button
+                android:id="@+id/btnStop"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="STOP"
+                android:textColor="#FFFFFF"
+                android:background="@drawable/button_red"
+                android:layout_marginStart="8dp" />
+        </LinearLayout>
+        <TextView
+            android:id="@+id/tvAcState"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="AC State: OFF"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="8dp" />
+        <Button
+            android:id="@+id/btnAcMode"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="CYCLE AC MODE"
+            android:textColor="#FFFFFF"
+            android:background="@drawable/button_blue" />
+        <TextView
+            android:id="@+id/tvNowPlaying"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Not playing"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="8dp" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+            <Button
+                android:id="@+id/btnPlayPause"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="PLAY/PAUSE"
+                android:textColor="#FFFFFF"
+                android:background="@drawable/button_green" />
+            <Button
+                android:id="@+id/btnNext"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="NEXT"
+                android:textColor="#FFFFFF"
+                android:background="@drawable/button_blue"
+                android:layout_marginStart="8dp" />
+            <Button
+                android:id="@+id/btnPrev"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="PREV"
+                android:textColor="#FFFFFF"
+                android:background="@drawable/button_blue"
+                android:layout_marginStart="8dp" />
+        </LinearLayout>
+        <Button
+            android:id="@+id/btnShowApps"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="SHOW INSTALLED APPS"
+            android:textColor="#FFFFFF"
+            android:background="@drawable/button_blue"
+            android:layout_marginTop="16dp" />
+        <ListView
+            android:id="@+id/lvApps"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_marginTop="8dp" />
+    </LinearLayout>
+</ScrollView>
