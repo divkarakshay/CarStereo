@@ -81,3 +81,34 @@
 2. Trace socket/serial reads feeding `canRead`/`canWrite`.
 3. Map `com.unisound.*` intents to data sources.
 4. Correlate with existing TCP listener (`0.0.0.0:8080`) in SerialDumpService.
+
+---
+
+## 6. Capture Attempts & Current Blocker (Nov 14, APK session)
+
+### 6.1 What the new AI shared
+
+- `TWTW` (`com.tw.service.xt.TWTW`) extends `TWUtil`; `TWTW.open()` registers CAN IDs:
+  `{513, 515, 516, 523, 769, 1281, 2560, 2561, 2562, 2563, -24804}`.
+- Writes via `mTW.write(id, ...)`; reads via `mTW.addHandler("CommandService", this.mHandler)`.
+- ID map: `0x0201 (513)` → navigation commands; `0x0203 (515)` → volume; `0x0204 (516)` → light/brightness; `0x020B (523)` → possibly AC; `0x0301 (769)` → source; `0x0501 (1281)` → system status; `0x0A00–0x0A03 (2560–2563)` → additional commands; `-24804` → special command.
+
+### 6.2 Frame format hypothesis
+
+- Each frame = **2-byte big-endian CAN ID + payload** (e.g., `0x0201` = 513 → navigation).
+
+### 6.3 Capture run on Android VM (`127.0.0.1:5555` / `emulator-5554`)
+
+- Installed + launched `SerialDump` (`com.cardumper`), started `SerialDumpService`.
+- Service received `ACTION_START` (confirmed via logcat):
+  - `Serial port not found: /dev/ttyS0`
+  - `Trying alternative: /dev/ttyAMA0`
+  - `IOException: /dev/ttyAMA0: open failed: EACCES (Permission denied)`
+- Added fallbacks to `SerialDumpService`: `/dev/ttyAMA0`, `/dev/ttyUSB0` (rebuilt + reinstalled).
+- **Blocker:** emulator exposes `/dev/ttyAMA0` as `root:root` mode `0600`; app cannot open it (`EACCES`).
+- `/dev/ttyS0` does not exist on this emulator; `chmod 666 /dev/ttyAMA0` not permitted (`Operation not permitted`).
+- Therefore: **no raw CAN dump file was produced yet** on the emulator.
+
+### 6.4 Implications
+
+- Capture must happen on **real head-unit hardware** (where `/dev/ttyS0` exists with app-accessible permissions) or via **frida-based interception** on the emulator.
