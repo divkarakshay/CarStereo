@@ -110,7 +110,10 @@ class SerialDumpService : Service() {
                 if (!serialFile.exists()) {
                     Log.e(TAG, "Serial port not found: $port")
                     // Try common alternatives
-                    val alternatives = listOf("/dev/ttyS1", "/dev/ttyS2", "/dev/ttyS3", "/dev/ttyS4", "/dev/ttyS5")
+                    val alternatives = listOf(
+                        "/dev/ttyS1", "/dev/ttyS2", "/dev/ttyS3", "/dev/ttyS4", "/dev/ttyS5",
+                        "/dev/ttyAMA0", "/dev/ttyUSB0"
+                    )
                     var found = false
                     for (alt in alternatives) {
                         if (File(alt).exists()) {

@@ -1,0 +1,67 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+}
+
+android {
+    namespace 'com.baleno.launcher'
+    compileSdk 33
+
+    defaultConfig {
+        applicationId "com.baleno.launcher"
+        minSdk 21
+        targetSdk 33
+        versionCode 1
+        versionName "1.0.0"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
+        debug {
+            debuggable true
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+
+    buildFeatures {
+        compose true
+    }
+}
+
+configurations.all {
+    resolutionStrategy {
+        force 'androidx.core:core:1.9.0'
+        force 'androidx.core:core-ktx:1.9.0'
+        force 'androidx.emoji2:emoji2:1.1.0'
+        force 'androidx.compose.compiler:compiler:1.4.8'
+    }
+}
+
+dependencies {
+    implementation 'androidx.core:core:1.9.0'
+    implementation 'androidx.core:core-ktx:1.9.0'
+    implementation 'androidx.emoji2:emoji2:1.1.0'
+    implementation 'androidx.activity:activity-compose:1.6.0'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.1'
+    implementation 'androidx.compose.foundation:foundation:1.4.8'
+    implementation 'androidx.compose.material3:material3:1.1.2'
+    implementation 'androidx.compose.material:material-icons-extended:1.4.5'
+    implementation 'androidx.compose.runtime:runtime:1.4.8'
+    implementation 'androidx.compose.ui:ui:1.4.8'
+    implementation 'androidx.compose.ui:ui-text:1.4.8'
+    implementation 'androidx.compose.compiler:compiler:1.4.8'
+    implementation 'io.coil-kt:coil-compose:2.4.0'
+    implementation 'com.google.maps.android:maps-compose:4.2.0'
+    implementation 'com.google.android.gms:play-services-maps:18.1.0'
+    implementation 'com.google.android.gms:play-services-location:21.2.0'
+}
