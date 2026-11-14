@@ -24,9 +24,5 @@
                 <category android:name="android.intent.category_HOME" />
             </intent-filter>
         </activity>
-
-        <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyPLACEHOLDER_KEY_FOR_HEAD_UNIT" />
     </application>
 </manifest>

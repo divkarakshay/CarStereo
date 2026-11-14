@@ -25,21 +25,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import com.google.android.gms.maps.model.CameraPosition
-import com.google.android.gms.maps.model.LatLng
-import com.google.maps.android.compose.GoogleMap
-import com.google.maps.android.compose.MapUiSettings
-import com.google.maps.android.compose.Marker
-import com.google.maps.android.compose.MarkerState
-import com.google.maps.android.compose.rememberCameraPositionState
 
 @Composable
 fun RenderWidget(
@@ -270,12 +264,9 @@ fun GaugeArc(
     }
 }
 
-// 3. LIVE GOOGLE MAPS WIDGET (Matches Location card with bottom dark ETA overlay)
+// 3. LIVE NAVIGATION MAP WIDGET (Self-contained Canvas route rendering - no Google Maps API key required)
 @Composable
 fun LiveMapWidget(textColor: Color, subTextColor: Color) {
-    val isPreview = LocalInspectionMode.current
-    val defaultLocation = LatLng(28.6139, 77.2090) // New Delhi default; bind to FusedLocationProviderClient
-
     Column(modifier = Modifier.fillMaxSize()) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -297,27 +288,56 @@ fun LiveMapWidget(textColor: Color, subTextColor: Color) {
             modifier = Modifier
                 .fillMaxSize()
                 .clip(RoundedCornerShape(16.dp))
-                .background(Color(0xFFE5E7EB))
+                .background(Color(0xFF10131A))
         ) {
-            if (!isPreview) {
-                val cameraPositionState = rememberCameraPositionState {
-                    position = CameraPosition.fromLatLngZoom(defaultLocation, 15f)
+            // Native route canvas: street grid + animated destination route
+            Canvas(modifier = Modifier.fillMaxSize()) {
+                val gridStep = 36f
+                val gridPath = Path().apply {
+                    var x = 0f
+                    while (x < size.width) {
+                        moveTo(x, 0f)
+                        lineTo(x, size.height)
+                        x += gridStep
+                    }
+                    var y = 0f
+                    while (y < size.height) {
+                        moveTo(0f, y)
+                        lineTo(size.width, y)
+                        y += gridStep
+                    }
                 }
-                GoogleMap(
-                    modifier = Modifier.fillMaxSize(),
-                    cameraPositionState = cameraPositionState,
-                    uiSettings = MapUiSettings(zoomControlsEnabled = false, compassEnabled = false)
-                ) {
-                    Marker(
-                        state = MarkerState(position = defaultLocation),
-                        title = "Baleno Live GPS"
-                    )
+                drawPath(
+                    path = gridPath,
+                    color = Color(0xFF1B2130),
+                    style = Stroke(width = 1f, cap = StrokeCap.Round)
+                )
+
+                val route = Path().apply {
+                    moveTo(size.width * 0.18f, size.height * 0.8f)
+                    lineTo(size.width * 0.32f, size.height * 0.58f)
+                    lineTo(size.width * 0.55f, size.height * 0.66f)
+                    lineTo(size.width * 0.78f, size.height * 0.38f)
+                    lineTo(size.width * 0.9f, size.height * 0.28f)
                 }
-            } else {
-                Text(
-                    "Google Maps Live View",
-                    modifier = Modifier.align(Alignment.Center),
-                    color = Color.DarkGray
+                drawPath(
+                    path = route,
+                    color = AccentLime,
+                    style = Stroke(width = 5f, cap = StrokeCap.Round)
+                )
+
+                // Origin / destination markers on the route
+                drawCircle(
+                    brush = SolidColor(Color(0xFF00E676)),
+                    radius = 8f,
+                    center = Offset(size.width * 0.18f, size.height * 0.8f),
+                    style = Stroke(width = 2.5f, cap = StrokeCap.Round)
+                )
+                drawCircle(
+                    brush = SolidColor(Color(0xFFFFFFFF)),
+                    radius = 8f,
+                    center = Offset(size.width * 0.9f, size.height * 0.28f),
+                    style = Stroke(width = 2.5f, cap = StrokeCap.Round)
                 )
             }
 
@@ -332,7 +352,7 @@ fun LiveMapWidget(textColor: Color, subTextColor: Color) {
                     .padding(12.dp)
             ) {
                 Text("NH-48 Gurugram Express", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 13.sp)
-                Text("Live GPS Active • Heading NW", color = Color(0xFF9CA3AF), fontSize = 11.sp)
+                Text("Live GPS • Heading NW", color = Color(0xFF9CA3AF), fontSize = 11.sp)
                 Spacer(modifier = Modifier.height(6.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
